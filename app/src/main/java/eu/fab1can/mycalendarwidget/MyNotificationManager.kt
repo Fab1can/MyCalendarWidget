@@ -8,12 +8,14 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.provider.CalendarContract
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import java.text.SimpleDateFormat
+import eu.fab1can.mycalendarwidget.calendar.Calendar
+import eu.fab1can.mycalendarwidget.calendar.Event
 import java.util.Date
-import java.util.Locale
 
 class MyNotificationManager(private val context: Context) {
 
@@ -21,6 +23,7 @@ class MyNotificationManager(private val context: Context) {
     private val notificationId = 1
     private val handler = Handler(Looper.getMainLooper())
     private val updateIntervalMillis = 20 * 1000L // 20 secondi
+    private var text = ""
 
     init {
         createNotificationChannel()
@@ -52,13 +55,28 @@ class MyNotificationManager(private val context: Context) {
     }
 
     fun updateNotificationText() {
-        val currentTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
+        val calendars = Calendar.retreiveAll(context.contentResolver)
+        text=""
+        for (calendar in calendars){
+            text=text+"ev1:"+calendar.AccName+"\n"
+            val events=
+                Event.retrieveEvents("((${CalendarContract.Events.CALENDAR_ID} = ?) AND (${CalendarContract.Events.DTEND} > ${Date().time}))", arrayOf(calendar.ID.toString()), context.contentResolver, calendar.ID)
+            for (event in events){
+                text=text+"ev:"+event.Title+"\n"
+            }
+        }
+        Log.d("xxx", text)
+        val extender = NotificationCompat.WearableExtender().setStartScrollBottom(true)
 
         val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("Notifica Dinamica")
-            .setContentText("Orario attuale: $currentTime")
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                .bigText(text))
+            .extend(extender)
             .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setOngoing(true)
             .setSound(null)
 
         with(NotificationManagerCompat.from(context)) {
