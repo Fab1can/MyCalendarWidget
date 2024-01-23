@@ -9,7 +9,7 @@ android {
 
     defaultConfig {
         applicationId = "eu.fab1can.mycalendarwidget"
-        minSdk = 24
+        minSdk = 28
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -45,7 +45,11 @@ android {
     }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += arrayOf("/META-INF/{AL2.0,LGPL2.1}", "META-INF/LICENSE.txt", "META-INF/NOTICE.txt", "**/package-info.java", "META-INF/groovy-release-info.properties", "META-INF/INDEX.LIST", "META-INF/groovy/**", "zoneinfo-global/**", "org/apache/commons/codec/language/bm/*.txt")
+
+        }
+        jniLibs {
+            excludes += arrayOf("META-INF/groovy/**", "zoneinfo-global/**")
         }
     }
 }
@@ -75,6 +79,19 @@ dependencies {
     implementation("com.google.oauth-client:google-oauth-client-jetty:1.23.0")
     implementation("com.google.apis:google-api-services-calendar:v3-rev305-1.23.0")
     implementation("com.google.android.gms:play-services-auth:20.4.0")
+    implementation("androidx.annotation:annotation:1.7.0")
+
+    implementation("org.mnode.ical4j:ical4j:3.2.14")
+    implementation("javax.cache:cache-api:1.1.1")
+    implementation("backport-util-concurrent:backport-util-concurrent:3.1")
+    implementation("commons-codec:commons-codec:1.16.0")
+    implementation("commons-lang:commons-lang:2.6")
+
+    testImplementation("junit:junit:4.13.2")
+
+    implementation("org.slf4j:slf4j-api:2.0.9")
+    testImplementation("org.slf4j:slf4j-simple:2.0.9")
+    implementation("uk.uuid.slf4j:slf4j-android:2.0.9-0")
 
     //to avoid conflicts in libraries
     implementation("com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava")

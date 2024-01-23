@@ -55,15 +55,10 @@ class MyNotificationManager(private val context: Context) {
     }
 
     fun updateNotificationText() {
-        val calendars = Calendar.retreiveAll(context.contentResolver)
+        val events = Event.retrieveFutureEvents(context.contentResolver, arrayOf(1,2,3,5,6,7,8,9,11,13,14,15,16))
         text=""
-        for (calendar in calendars){
-            text=text+"ev1:"+calendar.AccName+"\n"
-            val events=
-                Event.retrieveEvents("((${CalendarContract.Events.CALENDAR_ID} = ?) AND (${CalendarContract.Events.DTEND} > ${Date().time}))", arrayOf(calendar.ID.toString()), context.contentResolver, calendar.ID)
-            for (event in events){
-                text=text+"ev:"+event.Title+"\n"
-            }
+        for (event in events){
+            text=text+"ev:"+event.Title+"\n"
         }
         Log.d("xxx", text)
         val extender = NotificationCompat.WearableExtender().setStartScrollBottom(true)

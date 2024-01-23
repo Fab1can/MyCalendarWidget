@@ -17,21 +17,6 @@ import java.util.Date
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val CALENDAR_PROJECTION: Array<String> = arrayOf(
-        CalendarContract.Calendars._ID
-    )
-    // The indices for the projection array above.
-    private val CALENDAR_PROJECTION_ID_INDEX: Int = 0
-
-
-    private val EVENT_PROJECTION: Array<String> = arrayOf(
-        CalendarContract.Events.CALENDAR_ID,
-        CalendarContract.Events.TITLE,
-        CalendarContract.Events.DTEND
-    )
-    private val EVENT_PROJECTION_CALEDNAR_ID_INDEX: Int = 0
-    private val EVENT_PROJECTION_TITLE_INDEX: Int = 1
-    private val EVENT_PROJECTION_DTEND_INDEX: Int = 2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,11 +29,11 @@ class MainActivity : AppCompatActivity() {
 
             val calendars = Calendar.retreiveAll(contentResolver)
             for (calendar in calendars){
-                Log.d("ev1", calendar.AccName)
-                val events=Event.retrieveEvents("((${CalendarContract.Events.CALENDAR_ID} = ?) AND (${CalendarContract.Events.DTEND} > ${Date().time}))", arrayOf(calendar.ID.toString()), contentResolver, calendar.ID)
-                for (event in events){
-                    Log.d("ev", event.Title)
-                }
+                Log.d("ev1", calendar.ID.toString()+":"+calendar.AccName)
+            }
+            val events=Event.retrieveFutureEvents(contentResolver, arrayOf(1,2,3,5,6,7,8,9,11,13,14,15,16))
+            for (event in events){
+                Log.d("ev", event.CalendarID.toString()+":"+event.Title+":"+event.DtStart+":"+event.DtEnd)
             }
         }
 
