@@ -27,10 +27,15 @@ class Event (id: Long, calendarId: Long, title: String, dtEnd: Long, dtStart: Lo
     var DtStart = LocalDateTime.ofInstant(Instant.ofEpochMilli(dtStart), ZoneId.systemDefault())
 
     fun getNextOccurrence(dtStart: LocalDateTime, duration:String, rrule:String, title:String) {
-        System.out.println(title)
+
+
+
+    }
+
+    constructor(id: Long, calendarId: Long, title: String, dtEnd: Long, dtStart: Long, rrule: String, duration: String):this(id, calendarId, title, dtEnd, dtStart){
         val icalString = "BEGIN:VCALENDAR\n" +
                 "BEGIN:VEVENT\n" +
-                "DTSTART:"+dtStart.format(DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'"))+"\n" +  // data e ora di inizio
+                "DTSTART:"+DtStart.format(DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'"))+"\n" +  // data e ora di inizio
                 "DURATION:"+duration+"\n" +    // data e ora di fine
                 "RRULE:"+rrule+"\n" + // regola di ricorrenza (ogni giorno per 5 volte)
                 "SUMMARY:Prossima Ricorrenza\n" +
@@ -42,49 +47,14 @@ class Event (id: Long, calendarId: Long, title: String, dtEnd: Long, dtStart: Lo
         val event = calendar.getComponents<VEvent>(Component.VEVENT).first()
 
         val period = Period(
-            DateTime(event.startDate.date),
-            DateTime(event.endDate.date)
+            DateTime(Date()),
+            DateTime(Date().time+1000*60*60*24*3)
         )
-
-
-        for (o in calendar.getComponents<VEvent>("VEVENT")) {
-            val c = o as Component
-            val list = c.calculateRecurrenceSet(period)
-            for (po in list) {
-                System.out.println(po as Period)
-            }
+        val recurrences = event.calculateRecurrenceSet(period)
+        if(recurrences.size>0){
+            DtStart = LocalDateTime.ofInstant(Instant.ofEpochMilli(recurrences.first().start.time), ZoneId.of("UTC"))
+            DtEnd = LocalDateTime.ofInstant(Instant.ofEpochMilli(recurrences.first().end.time), ZoneId.of("UTC"))
         }
-
-    }
-
-    constructor(id: Long, calendarId: Long, title: String, dtEnd: Long, dtStart: Long, rrule: String, duration: String):this(id, calendarId, title, dtEnd, dtStart){
-
-        getNextOccurrence(DtStart, duration, rrule, title)
-
-        var freq : String
-        var until : String
-        var byday : String
-        var bymonthday : String
-        var byyearday : String
-        for (item in rrule.split(";")){
-            val item2 = item.split("=")
-            if(item2[0]=="FREQ"){
-                when{
-                    item2[1]=="DAILY" ->{
-                        val now = LocalDateTime.now()
-                        DtStart = LocalDateTime.ofInstant(Instant.ofEpochMilli(dtStart), ZoneId.systemDefault()).withYear(now.year).withMonth(now.monthValue).withDayOfMonth(now.dayOfMonth)
-                        if(now.isAfter(DtStart)){
-                            DtStart = DtStart.plusDays(1)
-                        }
-                    }
-                }
-            }
-        }
-        /*if(duration.substring(duration.length-1)!="S"){
-            throw Error()
-        }*/
-        val seconds = duration.substring(1,duration.length-1).toInt()
-        DtEnd = DtStart.plusSeconds(seconds.toLong())
     }
 
     companion object{
@@ -127,11 +97,11 @@ class Event (id: Long, calendarId: Long, title: String, dtEnd: Long, dtStart: Lo
         }
 
         fun retrieveFutureEvents(contentResolver: ContentResolver, calID: Long): Array<Event> {
-            return retrieveEvents("((${CalendarContract.Events.CALENDAR_ID} = ?) AND (${CalendarContract.Events.DTEND} > ${Date().time}))",arrayOf(calID.toString()), contentResolver)
+            return retrieveEvents("((${CalendarContract.Events.CALENDAR_ID} = ?) AND (${CalendarContract.Events.DTEND} > ${Date().time}))",arrayOf(calID.toString()), contentResolver).filter { ev->ev.DtEnd>LocalDateTime.now() }.sortedBy { it.DtStart }.toTypedArray()
         }
 
         fun retrieveFutureEvents(contentResolver: ContentResolver, calIDs: Array<Long>): Array<Event> {
-            return retrieveEvents("((${CalendarContract.Events.CALENDAR_ID} IN (${calIDs.joinToString()})) AND ((${CalendarContract.Events.DTEND} > ${Date().time}) OR (${CalendarContract.Events.RRULE} IS NOT NULL)))", null, contentResolver)
+            return retrieveEvents("((${CalendarContract.Events.CALENDAR_ID} IN (${calIDs.joinToString()})) AND ((${CalendarContract.Events.DTEND} > ${Date().time}) OR (${CalendarContract.Events.RRULE} IS NOT NULL)))", null, contentResolver).filter { ev->ev.DtEnd>LocalDateTime.now() }.sortedBy { it.DtStart }.toTypedArray()
 
         }
 
