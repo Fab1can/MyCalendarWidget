@@ -19,26 +19,21 @@ import java.time.format.DateTimeFormatter
 import java.util.Date
 
 
-class Event (id: Long, calendarId: Long, title: String, dtEnd: Long, dtStart: Long){
+class Event (id: Long, calendarId: Long, title: String, dtEnd: Long, dtStart: Long, allDay: Boolean):IDated{
     val ID = id
     val CalendarID = calendarId
     val Title = title
     var DtEnd = LocalDateTime.ofInstant(Instant.ofEpochMilli(dtEnd), ZoneId.systemDefault())
     var DtStart = LocalDateTime.ofInstant(Instant.ofEpochMilli(dtStart), ZoneId.systemDefault())
-
-    fun getNextOccurrence(dtStart: LocalDateTime, duration:String, rrule:String, title:String) {
-
+    val AllDay = allDay
 
 
-    }
-
-    constructor(id: Long, calendarId: Long, title: String, dtEnd: Long, dtStart: Long, rrule: String, duration: String):this(id, calendarId, title, dtEnd, dtStart){
+    constructor(id: Long, calendarId: Long, title: String, dtEnd: Long, dtStart: Long, allDay: Boolean, rrule: String, duration: String):this(id, calendarId, title, dtEnd, dtStart, allDay){
         val icalString = "BEGIN:VCALENDAR\n" +
                 "BEGIN:VEVENT\n" +
-                "DTSTART:"+DtStart.format(DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'"))+"\n" +  // data e ora di inizio
-                "DURATION:"+duration+"\n" +    // data e ora di fine
-                "RRULE:"+rrule+"\n" + // regola di ricorrenza (ogni giorno per 5 volte)
-                "SUMMARY:Prossima Ricorrenza\n" +
+                "DTSTART:"+DtStart.format(DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss'Z'"))+"\n" +
+                "DURATION:"+duration+"\n" +
+                "RRULE:"+rrule+"\n" +
                 "END:VEVENT\n" +
                 "END:VCALENDAR"
         val calendarBuilder = CalendarBuilder()
@@ -63,17 +58,19 @@ class Event (id: Long, calendarId: Long, title: String, dtEnd: Long, dtStart: Lo
             CalendarContract.Events.TITLE,
             CalendarContract.Events.DTEND,
             CalendarContract.Events.DTSTART,
+            CalendarContract.Events.ALL_DAY,
             CalendarContract.Events.CALENDAR_ID,
             CalendarContract.Events.RRULE,
-            CalendarContract.Events.DURATION,
+            CalendarContract.Events.DURATION
         )
         private val PROJECTION_ID_INDEX: Int = 0
         private val PROJECTION_TITLE_INDEX: Int = 1
         private val PROJECTION_DTEND_INDEX: Int = 2
         private val PROJECTION_DTSTART_INDEX: Int = 3
-        private val PROJECTION_CALENDAR_ID_INDEX: Int = 4
-        private val PROJECTION_RRULE_INDEX: Int = 5
-        private val PROJECTION_DURATION_INDEX: Int = 6
+        private val PROJECTION_ALL_DAY_INDEX: Int = 4
+        private val PROJECTION_CALENDAR_ID_INDEX: Int = 5
+        private val PROJECTION_RRULE_INDEX: Int = 6
+        private val PROJECTION_DURATION_INDEX: Int = 7
         fun retrieveEvents(selection:String, selectionArgs: Array<String>?, contentResolver: ContentResolver): Array<Event> {
             val uri: Uri = CalendarContract.Events.CONTENT_URI
             val cur: Cursor =
@@ -84,13 +81,14 @@ class Event (id: Long, calendarId: Long, title: String, dtEnd: Long, dtStart: Lo
                 val title = cur.getString(PROJECTION_TITLE_INDEX)
                 val dtEnd = cur.getLong(PROJECTION_DTEND_INDEX)
                 val dtStart = cur.getLong(PROJECTION_DTSTART_INDEX)
+                val dtAllDay = cur.getInt(PROJECTION_ALL_DAY_INDEX)
                 val calID = cur.getLong(PROJECTION_CALENDAR_ID_INDEX)
                 if(cur.isNull(PROJECTION_RRULE_INDEX)){
-                    entrees.add(Event(id, calID, title, dtEnd, dtStart))
+                    entrees.add(Event(id, calID, title, dtEnd, dtStart, dtAllDay!=0))
                 }else{
                     val rrule = cur.getString(PROJECTION_RRULE_INDEX)
                     val duration = cur.getString(PROJECTION_DURATION_INDEX)
-                    entrees.add(Event(id, calID, title, dtEnd, dtStart, rrule, duration))
+                    entrees.add(Event(id, calID, title, dtEnd, dtStart, dtAllDay!=0, rrule, duration))
                 }
             }
             return entrees.toTypedArray()
@@ -106,5 +104,9 @@ class Event (id: Long, calendarId: Long, title: String, dtEnd: Long, dtStart: Lo
         }
 
 
+    }
+
+    override fun currentYearDateTime(): LocalDateTime {
+        return DtStart
     }
 }

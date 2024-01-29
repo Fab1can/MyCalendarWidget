@@ -8,6 +8,7 @@ import android.provider.CalendarContract
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import eu.fab1can.mycalendarwidget.calendar.Calendar
+import eu.fab1can.mycalendarwidget.calendar.ContactEvent
 import eu.fab1can.mycalendarwidget.calendar.Event
 import eu.fab1can.mycalendarwidget.databinding.ActivityMainBinding
 import pub.devrel.easypermissions.EasyPermissions
@@ -33,12 +34,18 @@ class MainActivity : AppCompatActivity() {
             }
             val events=Event.retrieveFutureEvents(contentResolver, arrayOf(1,2,3,5,6,7,8,9,11,13,14,15,16))
             for (event in events){
-                Log.d("ev", event.CalendarID.toString()+":"+event.Title+":"+event.DtStart+":"+event.DtEnd)
+            }
+            val birthdays = ContactEvent.retrieveEvents(contentResolver)
+            for(birthday in birthdays){
+                Log.d("bb", birthday.Name+":"+birthday.Label+":"+birthday.Date)
             }
         }
 
         if(!EasyPermissions.hasPermissions(this, Manifest.permission.READ_CALENDAR)){
             EasyPermissions.requestPermissions(this, "", 123, Manifest.permission.READ_CALENDAR)
+        }
+        if(!EasyPermissions.hasPermissions(this, Manifest.permission.READ_CONTACTS)){
+            EasyPermissions.requestPermissions(this, "", 456, Manifest.permission.READ_CONTACTS)
         }
 
         val n = MyNotificationManager(this)
