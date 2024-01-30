@@ -15,17 +15,18 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import eu.fab1can.mycalendarwidget.calendar.ContactEvent
 import eu.fab1can.mycalendarwidget.calendar.Event
-import eu.fab1can.mycalendarwidget.calendar.IDated
-import net.fortuna.ical4j.model.property.DtStart
+import eu.fab1can.mycalendarwidget.tasks.GoogleTasksManager
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-class MyNotificationManager(private val context: Context) {
+class MyNotificationManager(private val context: Context, private val tasks:GoogleTasksManager) {
 
     private val channelId = "my_channel_id"
     private val notificationId = 1
     private val handler = Handler(Looper.getMainLooper())
     private val updateIntervalMillis = 20 * 1000L // 20 secondi
+    private val firstTimeUpdateIntervalMillis = 1000L // 1 secondo
+    private var firstTime = true
     private var text = ""
 
     init {
@@ -52,12 +53,14 @@ class MyNotificationManager(private val context: Context) {
     fun showNonDismissableNotification() {
         updateNotificationText()
         handler.postDelayed({
+            firstTime=false
             updateNotificationText()
             showNonDismissableNotification()
-        }, updateIntervalMillis)
+        }, if(firstTime) firstTimeUpdateIntervalMillis else updateIntervalMillis)
     }
 
     fun updateNotificationText() {
+        tasks.updateTaskList()
         val events = Event.retrieveFutureEvents(context.contentResolver, arrayOf(1,2,3,5,6,7,8,9,11,13,14,15,16))
         val contactEvents = ContactEvent.retrieveNextEvents(context.contentResolver)
 
@@ -65,6 +68,13 @@ class MyNotificationManager(private val context: Context) {
         val allEvents = arrayOf(*events,*contactEvents).sortedBy { it->it.currentYearDateTime() }
 
         val notificationView = RemoteViews(context.packageName, R.layout.notification)
+
+        for (task in tasks.taskList){
+            val taskView = RemoteViews(context.packageName, R.layout.notification_task)
+            taskView.setTextViewText(R.id.txtTask, task)
+            notificationView.addView(R.id.events_container, taskView)
+        }
+
         for (event in allEvents){
             val DtStart : LocalDateTime
             val Title : String

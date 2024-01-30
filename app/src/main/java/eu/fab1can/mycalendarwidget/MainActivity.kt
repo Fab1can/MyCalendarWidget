@@ -3,6 +3,7 @@ package eu.fab1can.mycalendarwidget
 import android.database.Cursor
 import android.net.Uri
 import android.Manifest
+import android.content.Intent
 import android.os.Bundle
 import android.provider.CalendarContract
 import android.util.Log
@@ -11,13 +12,21 @@ import eu.fab1can.mycalendarwidget.calendar.Calendar
 import eu.fab1can.mycalendarwidget.calendar.ContactEvent
 import eu.fab1can.mycalendarwidget.calendar.Event
 import eu.fab1can.mycalendarwidget.databinding.ActivityMainBinding
+import eu.fab1can.mycalendarwidget.tasks.GoogleTasksManager
 import pub.devrel.easypermissions.EasyPermissions
 import java.util.Date
 
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var googleTasksManager: GoogleTasksManager
     private lateinit var binding: ActivityMainBinding
+
+    companion object {
+        const val R_CODE_CALENDAR = 100
+        const val R_CODE_CONTACTS = 101
+        const val R_CODE_NOTIFICATIONS = 102
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,14 +51,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         if(!EasyPermissions.hasPermissions(this, Manifest.permission.READ_CALENDAR)){
-            EasyPermissions.requestPermissions(this, "", 123, Manifest.permission.READ_CALENDAR)
+            EasyPermissions.requestPermissions(this, "", R_CODE_CALENDAR, Manifest.permission.READ_CALENDAR)
         }
         if(!EasyPermissions.hasPermissions(this, Manifest.permission.READ_CONTACTS)){
-            EasyPermissions.requestPermissions(this, "", 456, Manifest.permission.READ_CONTACTS)
+            EasyPermissions.requestPermissions(this, "", R_CODE_CONTACTS, Manifest.permission.READ_CONTACTS)
+        }
+        if(!EasyPermissions.hasPermissions(this, Manifest.permission.POST_NOTIFICATIONS)){
+            EasyPermissions.requestPermissions(this, "", R_CODE_NOTIFICATIONS, Manifest.permission.POST_NOTIFICATIONS)
         }
 
-        val n = MyNotificationManager(this)
+        googleTasksManager = GoogleTasksManager(this)
+
+        val n = MyNotificationManager(this, googleTasksManager)
         n.showNonDismissableNotification()
+
 
     }
 
@@ -60,6 +75,16 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            GoogleTasksManager.REQUEST_CODE_SIGN_IN -> {
+                googleTasksManager.handleSignInResult(data)
+            }
+
+        }
     }
 
 }

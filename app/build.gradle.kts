@@ -45,7 +45,7 @@ android {
     }
     packaging {
         resources {
-            excludes += arrayOf("/META-INF/{AL2.0,LGPL2.1}", "META-INF/LICENSE.txt", "META-INF/NOTICE.txt", "**/package-info.java", "META-INF/groovy-release-info.properties", "META-INF/INDEX.LIST", "META-INF/groovy/**", "zoneinfo-global/**", "org/apache/commons/codec/language/bm/*.txt")
+            excludes += arrayOf("/META-INF/{AL2.0,LGPL2.1}", "META-INF/LICENSE.txt", "META-INF/NOTICE.txt", "**/package-info.java", "META-INF/groovy-release-info.properties", "META-INF/INDEX.LIST", "META-INF/groovy/**", "zoneinfo-global/**", "org/apache/commons/codec/language/bm/*.txt", "META-INF/DEPENDENCIES")
 
         }
         jniLibs {
@@ -70,6 +70,7 @@ dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.5.3")
     implementation("androidx.navigation:navigation-ui-ktx:2.5.3")
     implementation("com.google.android.material:material:1.12.0-alpha03")
+    implementation("com.google.apis:google-api-services-tasks:v1-rev20230401-2.0.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
