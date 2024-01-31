@@ -3,7 +3,7 @@
     android:id="@+id/task_border"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/design_default_color_primary"
+    android:background="@color/design_default_color_secondary"
     android:paddingHorizontal="5dp"
     android:paddingTop="1dp"
     android:paddingBottom="5dp">

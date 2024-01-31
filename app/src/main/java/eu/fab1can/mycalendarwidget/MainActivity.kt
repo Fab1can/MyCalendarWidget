@@ -19,13 +19,14 @@ import java.util.Date
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var googleTasksManager: GoogleTasksManager
     private lateinit var binding: ActivityMainBinding
 
     companion object {
         const val R_CODE_CALENDAR = 100
         const val R_CODE_CONTACTS = 101
         const val R_CODE_NOTIFICATIONS = 102
+
+        lateinit var googleTasksManager : GoogleTasksManager
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,21 +52,20 @@ class MainActivity : AppCompatActivity() {
         }
 
         if(!EasyPermissions.hasPermissions(this, Manifest.permission.READ_CALENDAR)){
-            EasyPermissions.requestPermissions(this, "", R_CODE_CALENDAR, Manifest.permission.READ_CALENDAR)
+            EasyPermissions.requestPermissions(this, "", MainActivity.R_CODE_CALENDAR, Manifest.permission.READ_CALENDAR)
         }
         if(!EasyPermissions.hasPermissions(this, Manifest.permission.READ_CONTACTS)){
-            EasyPermissions.requestPermissions(this, "", R_CODE_CONTACTS, Manifest.permission.READ_CONTACTS)
+            EasyPermissions.requestPermissions(this, "", MainActivity.R_CODE_CONTACTS, Manifest.permission.READ_CONTACTS)
         }
         if(!EasyPermissions.hasPermissions(this, Manifest.permission.POST_NOTIFICATIONS)){
-            EasyPermissions.requestPermissions(this, "", R_CODE_NOTIFICATIONS, Manifest.permission.POST_NOTIFICATIONS)
+            EasyPermissions.requestPermissions(this, "",
+                MainActivity.R_CODE_NOTIFICATIONS, Manifest.permission.POST_NOTIFICATIONS)
         }
 
         googleTasksManager = GoogleTasksManager(this)
 
-        val n = MyNotificationManager(this, googleTasksManager)
-        n.showNonDismissableNotification()
-
-
+        val serviceIntent = Intent(this@MainActivity, MyNotificationService::class.java)
+        startService(serviceIntent)
     }
 
     override fun onRequestPermissionsResult(

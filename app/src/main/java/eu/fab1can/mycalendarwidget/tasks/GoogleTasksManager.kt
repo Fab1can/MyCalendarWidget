@@ -1,6 +1,7 @@
 package eu.fab1can.mycalendarwidget.tasks
 
 import android.app.Activity
+import android.app.Service
 import android.content.Intent
 import android.os.AsyncTask
 import android.util.Log
