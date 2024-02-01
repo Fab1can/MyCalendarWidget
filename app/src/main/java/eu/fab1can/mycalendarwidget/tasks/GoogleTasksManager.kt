@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.AsyncTask
 import android.util.Log
 import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.Scope
 import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential
@@ -26,7 +27,7 @@ class GoogleTasksManager(private val activity: Activity) {
         const val TASKLIST_ID = 0
     }
 
-    private var initialized : Boolean = false
+    var initialized : Boolean = false
     private lateinit var tasks: Tasks
 
     var taskList : List<String> = listOf<String>()
@@ -43,21 +44,25 @@ class GoogleTasksManager(private val activity: Activity) {
 
         val account = GoogleSignIn.getLastSignedInAccount(activity)
         if (account != null) {
-            val credentials = GoogleAccountCredential.usingOAuth2(
-                activity.applicationContext,
-                listOf(TasksScopes.TASKS_READONLY)
-            )
-            credentials.selectedAccount = account.account
-
-            tasks = Tasks.Builder(
-                NetHttpTransport(),
-                GsonFactory.getDefaultInstance(),
-                credentials
-            )
-                .setApplicationName("MyCalendarWidget") // Replace with your app name
-                .build()
-            initialized=true
+            loadTasks(account)
         }
+    }
+
+    fun loadTasks(account : GoogleSignInAccount){
+        val credentials = GoogleAccountCredential.usingOAuth2(
+            activity.applicationContext,
+            listOf(TasksScopes.TASKS_READONLY)
+        )
+        credentials.selectedAccount = account.account
+
+        tasks = Tasks.Builder(
+            NetHttpTransport(),
+            GsonFactory.getDefaultInstance(),
+            credentials
+        )
+            .setApplicationName("MyCalendarWidget") // Replace with your app name
+            .build()
+        initialized=true
     }
 
     fun handleSignInResult(data: Intent?) {
@@ -65,6 +70,7 @@ class GoogleTasksManager(private val activity: Activity) {
             .addOnSuccessListener { account ->
                 Log.d("GoogleTasksManager", "Email: ${account.email}")
 
+                loadTasks(account)
                 updateTaskList()
 
 
@@ -81,6 +87,8 @@ class GoogleTasksManager(private val activity: Activity) {
                 val tasks =tasks.tasks().list(tasklistId).execute().items
                 taskList = tasks.filter { it.completed==null }.map { it.title }
             }
+        }else{
+            throw Error("Not initialized!")
         }
 
     }

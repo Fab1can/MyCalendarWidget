@@ -6,10 +6,13 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.pm.PackageManager
+import android.media.RingtoneManager
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.widget.RemoteViews
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -17,18 +20,22 @@ import androidx.core.content.ContextCompat
 import eu.fab1can.mycalendarwidget.calendar.ContactEvent
 import eu.fab1can.mycalendarwidget.calendar.Event
 import eu.fab1can.mycalendarwidget.tasks.GoogleTasksManager
+import pub.devrel.easypermissions.EasyPermissions
 import java.time.LocalDate
 import java.time.LocalDateTime
+import kotlin.random.Random
 
 class MyNotificationManager(private val service: Service, private val tasks:GoogleTasksManager) {
 
     private val channelId = "my_channel_id"
+    private val channelName = "My Channel"
+    private val channelDescription = "Channel Description"
     private val notificationId = 1
     private val handler = Handler(Looper.getMainLooper())
-    private val updateIntervalMillis = 2 * 1000L // 20 secondi
-    private val firstTimeUpdateIntervalMillis = 1000L // 1 secondo
+    private val updateIntervalMillis = 120 * 1000L
+    private val firstTimeUpdateIntervalMillis = 500L
     private var firstTime = true
-    private var text = ""
+    private val random = Random(System.currentTimeMillis()).nextInt()
 
     init {
         createNotificationChannel()
@@ -36,11 +43,9 @@ class MyNotificationManager(private val service: Service, private val tasks:Goog
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val name = "My Channel"
-            val descriptionText = "Channel Description"
             val importance = NotificationManager.IMPORTANCE_LOW
-            val channel = NotificationChannel(channelId, name, importance).apply {
-                description = descriptionText
+            val channel = NotificationChannel(channelId, channelName, importance).apply {
+                description = channelDescription
             }
             channel.setSound(null, null)
 
@@ -61,7 +66,7 @@ class MyNotificationManager(private val service: Service, private val tasks:Goog
     }
 
 
-    fun addTasks(notificationView: RemoteViews){
+    private fun addTasks(notificationView: RemoteViews){
         tasks.updateTaskList()
         for (task in tasks.taskList){
             val taskView = RemoteViews(service.applicationContext.packageName, R.layout.notification_task)
@@ -70,7 +75,7 @@ class MyNotificationManager(private val service: Service, private val tasks:Goog
         }
     }
 
-    fun addEvents(notificationView:RemoteViews){
+    private fun addEvents(notificationView:RemoteViews){
         val events = Event.retrieveFutureEvents(service.applicationContext.contentResolver, arrayOf(1,2,3,5,6,7,8,9,11,13,14,15,16))
         val contactEvents = ContactEvent.retrieveNextEvents(service.applicationContext.contentResolver)
 
@@ -123,10 +128,15 @@ class MyNotificationManager(private val service: Service, private val tasks:Goog
     }
 
     fun updateNotificationText() {
-
+        if(!EasyPermissions.hasPermissions(service.applicationContext, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_CONTACTS, Manifest.permission.POST_NOTIFICATIONS)){
+            return
+        }
+        //Toast.makeText(service.applicationContext, random.toString(), Toast.LENGTH_SHORT).show()
+        //Log.d("gggg", random.toString())
         val notificationView = RemoteViews(service.applicationContext.packageName, R.layout.notification)
 
-        addTasks(notificationView)
+        if(tasks.initialized)
+            addTasks(notificationView)
         addEvents(notificationView)
 
         val builder = NotificationCompat.Builder(service.applicationContext, channelId)
@@ -145,7 +155,8 @@ class MyNotificationManager(private val service: Service, private val tasks:Goog
             ) {
                 return
             }
-            notify(notificationId, builder.build())
+            //notify(notificationId, builder.build())
+            service.startForeground(notificationId, builder.build())
         }
     }
 }

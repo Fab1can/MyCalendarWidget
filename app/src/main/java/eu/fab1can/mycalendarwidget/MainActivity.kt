@@ -1,20 +1,19 @@
 package eu.fab1can.mycalendarwidget
 
-import android.database.Cursor
-import android.net.Uri
 import android.Manifest
+import android.app.ActivityManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.provider.CalendarContract
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import eu.fab1can.mycalendarwidget.calendar.Calendar
 import eu.fab1can.mycalendarwidget.calendar.ContactEvent
 import eu.fab1can.mycalendarwidget.calendar.Event
 import eu.fab1can.mycalendarwidget.databinding.ActivityMainBinding
 import eu.fab1can.mycalendarwidget.tasks.GoogleTasksManager
 import pub.devrel.easypermissions.EasyPermissions
-import java.util.Date
 
 
 class MainActivity : AppCompatActivity() {
@@ -51,21 +50,17 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        if(!EasyPermissions.hasPermissions(this, Manifest.permission.READ_CALENDAR)){
-            EasyPermissions.requestPermissions(this, "", MainActivity.R_CODE_CALENDAR, Manifest.permission.READ_CALENDAR)
-        }
-        if(!EasyPermissions.hasPermissions(this, Manifest.permission.READ_CONTACTS)){
-            EasyPermissions.requestPermissions(this, "", MainActivity.R_CODE_CONTACTS, Manifest.permission.READ_CONTACTS)
-        }
-        if(!EasyPermissions.hasPermissions(this, Manifest.permission.POST_NOTIFICATIONS)){
-            EasyPermissions.requestPermissions(this, "",
-                MainActivity.R_CODE_NOTIFICATIONS, Manifest.permission.POST_NOTIFICATIONS)
+        if(!EasyPermissions.hasPermissions(this, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_CONTACTS, Manifest.permission.POST_NOTIFICATIONS)){
+            EasyPermissions.requestPermissions(this, "", MainActivity.R_CODE_CALENDAR, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_CONTACTS, Manifest.permission.POST_NOTIFICATIONS)
         }
 
-        googleTasksManager = GoogleTasksManager(this)
+        if(!isMyNotificationServiceRunning()){
+            googleTasksManager = GoogleTasksManager(this)
 
-        val serviceIntent = Intent(this@MainActivity, MyNotificationService::class.java)
-        startService(serviceIntent)
+            val serviceIntent = Intent(this, MyNotificationService::class.java)
+            ContextCompat.startForegroundService(this, serviceIntent)
+        }
+
     }
 
     override fun onRequestPermissionsResult(
@@ -85,6 +80,16 @@ class MainActivity : AppCompatActivity() {
             }
 
         }
+    }
+
+    private fun isMyNotificationServiceRunning(): Boolean {
+        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
+            if (MyNotificationService::class.java.name == service.service.className) {
+                return true
+            }
+        }
+        return false
     }
 
 }
