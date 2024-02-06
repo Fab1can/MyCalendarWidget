@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.database.Cursor
 import android.net.Uri
 import android.provider.ContactsContract
+import android.util.Log
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -25,6 +26,7 @@ class ContactEvent:IDated {
             Date = LocalDate.of(0,dateFields[2].toInt(), dateFields[3].toInt())
         }
     }
+
 
     companion object{
         private val PROJECTION: Array<String> = arrayOf(

@@ -1,19 +1,24 @@
 package eu.fab1can.mycalendarwidget
 
 import android.Manifest
-import android.app.ActivityManager
-import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import eu.fab1can.mycalendarwidget.calendar.Calendar
 import eu.fab1can.mycalendarwidget.calendar.ContactEvent
 import eu.fab1can.mycalendarwidget.calendar.Event
 import eu.fab1can.mycalendarwidget.databinding.ActivityMainBinding
 import eu.fab1can.mycalendarwidget.tasks.GoogleTasksManager
 import pub.devrel.easypermissions.EasyPermissions
+import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
@@ -26,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         const val R_CODE_NOTIFICATIONS = 102
 
         lateinit var googleTasksManager : GoogleTasksManager
+        lateinit var myNotificationManager: MyNotificationManager
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,12 +60,15 @@ class MainActivity : AppCompatActivity() {
             EasyPermissions.requestPermissions(this, "", MainActivity.R_CODE_CALENDAR, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_CONTACTS, Manifest.permission.POST_NOTIFICATIONS)
         }
 
-        if(!isMyNotificationServiceRunning()){
-            googleTasksManager = GoogleTasksManager(this)
+        MainActivity.googleTasksManager = GoogleTasksManager(this)
 
-            val serviceIntent = Intent(this, MyNotificationService::class.java)
-            ContextCompat.startForegroundService(this, serviceIntent)
-        }
+        Handler(Looper.getMainLooper()).postDelayed({
+            Intent(applicationContext, MyService::class.java).also {
+                startService(it)
+            }
+        }, 500)
+
+
 
     }
 
@@ -82,14 +91,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun isMyNotificationServiceRunning(): Boolean {
-        val manager = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        for (service in manager.getRunningServices(Int.MAX_VALUE)) {
-            if (MyNotificationService::class.java.name == service.service.className) {
-                return true
-            }
-        }
-        return false
-    }
+
+
+
+
 
 }

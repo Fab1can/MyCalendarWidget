@@ -45,7 +45,18 @@ android {
     }
     packaging {
         resources {
-            excludes += arrayOf("/META-INF/{AL2.0,LGPL2.1}", "META-INF/LICENSE.txt", "META-INF/NOTICE.txt", "**/package-info.java", "META-INF/groovy-release-info.properties", "META-INF/INDEX.LIST", "META-INF/groovy/**", "zoneinfo-global/**", "org/apache/commons/codec/language/bm/*.txt", "META-INF/DEPENDENCIES")
+            excludes += arrayOf(
+                "/META-INF/{AL2.0,LGPL2.1}",
+                "META-INF/LICENSE.txt",
+                "META-INF/NOTICE.txt",
+                "**/package-info.java",
+                "META-INF/groovy-release-info.properties",
+                "META-INF/INDEX.LIST",
+                "META-INF/groovy/**",
+                "zoneinfo-global/**",
+                "org/apache/commons/codec/language/bm/*.txt",
+                "META-INF/DEPENDENCIES"
+            )
 
         }
         jniLibs {
@@ -104,4 +115,24 @@ dependencies {
 
     //so that we can easily control permissions
     implementation("pub.devrel:easypermissions:3.0.0")
+
+    val workVersion = "2.9.0"
+
+    // (Java only)
+    implementation("androidx.work:work-runtime:$workVersion")
+
+    // Kotlin + coroutines
+    implementation("androidx.work:work-runtime-ktx:$workVersion")
+
+    // optional - RxJava2 support
+    implementation("androidx.work:work-rxjava2:$workVersion")
+
+    // optional - GCMNetworkManager support
+    implementation("androidx.work:work-gcm:$workVersion")
+
+    // optional - Test helpers
+    androidTestImplementation("androidx.work:work-testing:$workVersion")
+
+    // optional - Multiprocess support
+    implementation ("androidx.work:work-multiprocess:$workVersion")
 }

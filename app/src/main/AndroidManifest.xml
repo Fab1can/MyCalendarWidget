@@ -7,9 +7,9 @@
     <uses-permission android:name="android.permission.READ_CONTACTS" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
 
     <application
+        android:name=".MyApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -19,12 +19,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyCalendarWidget"
         tools:targetApi="31">
-
         <service
-            android:name=".MyNotificationService"
+            android:name=".MyService"
             android:enabled="true"
-            android:exported="true"
-            android:foregroundServiceType="dataSync" />
+            android:exported="true"></service>
 
         <activity
             android:name=".MainActivity"
