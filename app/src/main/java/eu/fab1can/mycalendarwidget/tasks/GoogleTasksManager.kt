@@ -2,6 +2,7 @@ package eu.fab1can.mycalendarwidget.tasks
 
 import android.app.Activity
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.AsyncTask
 import android.util.Log
@@ -21,7 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
-class GoogleTasksManager(private val activity: Activity) {
+class GoogleTasksManager(private val context: Context) {
     companion object {
         const val REQUEST_CODE_SIGN_IN = 400
         const val TASKLIST_ID = 0
@@ -33,6 +34,14 @@ class GoogleTasksManager(private val activity: Activity) {
     var taskList : List<String> = listOf<String>()
 
     init {
+
+        val account = GoogleSignIn.getLastSignedInAccount(context)
+        if (account != null) {
+            loadTasks(account)
+        }
+    }
+
+    fun login(activity: Activity){
         val signInOptions = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
             .requestScopes(Scope(TasksScopes.TASKS_READONLY))
@@ -41,16 +50,11 @@ class GoogleTasksManager(private val activity: Activity) {
         val signInClient = GoogleSignIn.getClient(activity, signInOptions)
         val signInIntent = signInClient.signInIntent
         activity.startActivityForResult(signInIntent, REQUEST_CODE_SIGN_IN)
-
-        val account = GoogleSignIn.getLastSignedInAccount(activity)
-        if (account != null) {
-            loadTasks(account)
-        }
     }
 
     fun loadTasks(account : GoogleSignInAccount){
         val credentials = GoogleAccountCredential.usingOAuth2(
-            activity.applicationContext,
+            context,
             listOf(TasksScopes.TASKS_READONLY)
         )
         credentials.selectedAccount = account.account

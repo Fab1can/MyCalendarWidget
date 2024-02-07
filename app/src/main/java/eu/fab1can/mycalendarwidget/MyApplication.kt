@@ -12,6 +12,7 @@ class MyApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
+        MainActivity.googleTasksManager = GoogleTasksManager(this)
         MainActivity.myNotificationManager = MyNotificationManager()
         MainActivity.myNotificationManager.context=this
         MainActivity.myNotificationManager.createNotificationChannel()
