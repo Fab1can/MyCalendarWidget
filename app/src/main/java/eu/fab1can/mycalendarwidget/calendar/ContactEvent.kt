@@ -66,7 +66,7 @@ class ContactEvent:IDated {
         }
 
         fun retrieveNextEvents(contentResolver: ContentResolver): Array<ContactEvent> {
-            return retrieveEvents(contentResolver).filter { ev->ev.Date.withYear(LocalDate.now().year)>LocalDate.now()}.toTypedArray()
+            return retrieveEvents(contentResolver).filter { ev->ev.Date.withYear(LocalDate.now().year)>=LocalDate.now()}.toTypedArray()
         }
 
 
