@@ -4,24 +4,16 @@ import android.Manifest
 import android.app.AlertDialog
 import android.content.ComponentName
 import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkInfo
-import androidx.work.WorkManager
-import androidx.work.WorkRequest
 import eu.fab1can.mycalendarwidget.calendar.Calendar
 import eu.fab1can.mycalendarwidget.calendar.ContactEvent
 import eu.fab1can.mycalendarwidget.calendar.Event
 import eu.fab1can.mycalendarwidget.databinding.ActivityMainBinding
 import eu.fab1can.mycalendarwidget.tasks.GoogleTasksManager
 import pub.devrel.easypermissions.EasyPermissions
-import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
