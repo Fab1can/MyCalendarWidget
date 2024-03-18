@@ -11,6 +11,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.util.TypedValue
 import android.widget.RemoteViews
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
@@ -142,6 +143,7 @@ class MyNotificationManager() {
             .setCustomContentView(notificationView)
             .setCustomBigContentView(notificationView)
             .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(""))
             .setSound(null)
 
         with(NotificationManagerCompat.from(context)) {

@@ -152,11 +152,12 @@ class MainActivity : AppCompatActivity() {
 
         if(!EasyPermissions.hasPermissions(this, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_CONTACTS, Manifest.permission.POST_NOTIFICATIONS)){
             EasyPermissions.requestPermissions(this, "", MainActivity.R_CODE_CALENDAR, Manifest.permission.READ_CALENDAR, Manifest.permission.READ_CONTACTS, Manifest.permission.POST_NOTIFICATIONS)
+        }else{
+            MyService.start(this)
         }
 
         googleTasksManager.login(this)
 
-        MyService.start(this)
 
 
 
@@ -169,6 +170,7 @@ class MainActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
+        MyService.start(this)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

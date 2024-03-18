@@ -21,9 +21,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:padding="5dp"
+            android:padding="3dp"
             android:text="Fai la spesa"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:textAppearance="@style/Fab1can.TextSize"
             android:textColor="@android:color/holo_orange_light" />
     </LinearLayout>
 </RelativeLayout>

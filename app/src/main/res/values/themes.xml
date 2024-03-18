@@ -7,4 +7,7 @@
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
     </style>
+    <style name="Fab1can.TextSize" parent="@style/TextAppearance.AppCompat.Body2">
+        <item name="android:textSize">12dp</item>
+    </style>
 </resources>
