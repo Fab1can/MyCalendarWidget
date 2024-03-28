@@ -38,19 +38,19 @@ class MyService : Service() {
 
     companion object{
         fun start(context: Context){
+            val intent = Intent(context, AlarmReceiver::class.java)
+            intent.setAction("WAKEUP_ALARM_ACTION")
             val pendingIntent = PendingIntent.getBroadcast(
-                context, 0,
-                Intent(context, MyService::class.java), PendingIntent.FLAG_NO_CREATE + PendingIntent.FLAG_IMMUTABLE
+                context, 101,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT + PendingIntent.FLAG_IMMUTABLE
             )
             val calendar: Calendar = Calendar.getInstance()
             calendar.setTimeInMillis(System.currentTimeMillis())
-            calendar.add(Calendar.MINUTE, 1)
 
             val alarmManager = context.getSystemService(ALARM_SERVICE) as AlarmManager
-            alarmManager.setRepeating(
+            alarmManager.setExact(
                 AlarmManager.RTC_WAKEUP,
-                calendar.getTimeInMillis(),
-                (1000 * 60 * 60).toLong(),
+                calendar.getTimeInMillis()+(1000*60*60),
                 pendingIntent
             )
 
