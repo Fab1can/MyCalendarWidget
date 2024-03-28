@@ -145,6 +145,7 @@ class MyNotificationManager() {
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setStyle(NotificationCompat.BigTextStyle().bigText(""))
             .setSound(null)
+            .setOngoing(true)
 
         with(NotificationManagerCompat.from(context)) {
             if (ActivityCompat.checkSelfPermission(
