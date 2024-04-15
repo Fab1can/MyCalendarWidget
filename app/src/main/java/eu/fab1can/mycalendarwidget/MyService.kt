@@ -14,6 +14,7 @@ import java.util.Calendar
 
 class MyService : Service() {
 
+
     override fun onBind(intent: Intent): IBinder? {
         return null
     }
@@ -37,6 +38,8 @@ class MyService : Service() {
     }
 
     companion object{
+
+        val RESTARTING_TIME = 1000*60*10
         fun start(context: Context){
             val intent = Intent(context, AlarmReceiver::class.java)
             intent.setAction("WAKEUP_ALARM_ACTION")
@@ -50,7 +53,7 @@ class MyService : Service() {
             val alarmManager = context.getSystemService(ALARM_SERVICE) as AlarmManager
             alarmManager.setExact(
                 AlarmManager.RTC_WAKEUP,
-                calendar.getTimeInMillis()+(1000*60*60),
+                calendar.getTimeInMillis()+ RESTARTING_TIME,
                 pendingIntent
             )
 
